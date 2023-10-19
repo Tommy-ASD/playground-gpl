@@ -7,7 +7,6 @@ use axum::{
     routing::{get, get_service, post},
     Router,
 };
-use clap::Parser;
 use std::{
     collections::HashMap,
     net::SocketAddr,
@@ -16,7 +15,6 @@ use std::{
 };
 use tower::ServiceExt;
 use tower_http::{services::ServeDir, trace::TraceLayer};
-use tracing::{info, log::error};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use video_server::*;
 
@@ -82,7 +80,7 @@ pub async fn get_static_file(path: PathBuf) -> Result<Response<BoxBody>, (Status
     match ServeDir::new(path.clone()).oneshot(request).await {
         Ok(response) => Ok(response.map(boxed)),
         Err(err) => {
-            error!("Failed to open file: \nError: {}", err);
+            eprintln!("Failed to open file: \nError: {}", err);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to open file".to_string(),
@@ -133,7 +131,7 @@ pub fn set_up_logging() {
 #[tokio::main]
 pub async fn main() {
     set_up_logging();
-    let config = VideoPlayerConfig::parse();
+    let config = VideoPlayerConfig::default();
     let state = Arc::new(Mutex::new(VideoPlayerState::build(&config)));
 
     let app = Router::new()
@@ -148,7 +146,7 @@ pub async fn main() {
 
     let host_port = format!("{}:{}", config.host, config.port);
     let addr = host_port.parse::<SocketAddr>().unwrap();
-    info!("Starting server on {}", host_port);
+    println!("Starting server on {}", host_port);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
