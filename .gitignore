@@ -1,0 +1,9 @@
+target
+dist
+.env
+errors
+
+.cargo
+config.toml
+
+*.secret

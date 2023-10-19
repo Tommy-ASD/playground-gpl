@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="assets/index.css" />
+    <script src="assets/index.js"></script>
+    <title>Video Browser</title>
+  </head>
+  <body>
+    <section>
+      <h1>Index of available videos.</h1>
+      <form action="/reload" method="post">
+        <button type="submit">Reload index</button>
+      </form>
+      <input
+        type="text"
+        id="searchbar"
+        placeholder="Search for videos..."
+        onkeyup="filterVideos()"
+      />
+    </section>
+    <table style="width: 100%">
+      {% for (path, file) in videos %}
+      <tr style="width: 100%">
+        <td><a href="/video/{{ path }}">Download</a></td>
+        <td>{{ file.file_name().unwrap().to_str().unwrap() }}</td>
+        <td>
+          <video
+            title="{{ file.to_string_lossy() }}"
+            width="320"
+            height="240"
+            controls
+            loading="lazy"
+            autobuffer
+            playsinline
+            preload="metadata"
+            controlList="nodownload"
+          >
+            <source src="/video/{{ path }}" />
+          </video>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
